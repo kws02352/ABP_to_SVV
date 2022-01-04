@@ -3,6 +3,9 @@ import torch.nn as nn
 from torch.autograd import Variable
 
 class Net(nn.Module):
+    '''
+    version 1.1
+    '''
     def __init__(self, num_classes):        
         super(Net, self).__init__()
         self.conv1_1 = nn.Conv1d(3, 63, kernel_size = 12, groups = 3) # Depthwise Convolution
