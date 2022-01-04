@@ -53,6 +53,21 @@ def increment_path(path, exist_ok=False):
         return f"{path}{n}"
         
 def train(model_dir, args):
+    """ 
+    Parameters
+    ----------
+    model_dir : str
+        학습 된 모델이 저장 될 폴더 경로.(자동 생성)
+        
+    args
+        parameters.(epoch, batch_size, ...)
+        
+    Process
+        val_ABP, val_SVV는 처음에만 load.
+        train_ABP, train_SVV는 용량이 크기 때문에 file 당 epoch 수 만큼 학습 진행함.
+        file 하나를 train 할 때마다 저장.
+        다음 file 학습하기 전 이전에 학습한 model load.
+    """    
     path = '/srv/project_data/SV_sanghyun/base_ppv/train/'
     train_files = os.listdir(path)
     cnt = 0

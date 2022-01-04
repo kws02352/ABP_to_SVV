@@ -12,7 +12,7 @@ from torch.autograd import Variable
 def load_model(saved_model, num_classes, device):
     model_module = getattr(import_module("model"), args.model)
     model = model_module(
-        num_classes = args.num_classes
+        num_classes = num_classes
     ).to(device)
     
     model_path = os.path.join(saved_model, 'best.pth')
@@ -22,18 +22,40 @@ def load_model(saved_model, num_classes, device):
     return model
 
 def rmse(predictions, targets):
+    '''
+    rmse 계산.
+    '''
     return np.sqrt(((predictions - targets) ** 2).mean())
 
 def mse(predictions, targets):
+    '''
+    mse 계산.
+    '''
     return ((predictions - targets) ** 2).mean()
 
 def smooth(y, box_pts):
+    '''
+    plotting 결과 smoothing.
+    '''
     box = np.ones(box_pts)/box_pts
     y_smooth = np.convolve(y, box, mode='same')
     return y_smooth
 
 @torch.no_grad()
 def inference(model_dir, output_dir, args):
+    """ 
+    Parameters
+    ----------
+    model_dir : str
+        학습 된 모델이 있는 폴더 경로.
+        
+    output_dir : str
+        inference 결과 시각화 된 이미지 저장 경로.
+    
+    args
+        parameters.(epoch, batch_size, ...)
+        
+    """
     path = '/srv/project_data/SV_sanghyun/base_ppv/test/'
     test_files = os.listdir(path)
     
@@ -114,7 +136,7 @@ def inference(model_dir, output_dir, args):
             plt.yticks(fontsize=30)
             plt.plot(r, np.array(preds), color='blue', linestyle='solid', linewidth=0.5)
             plt.plot(r, np.array(labels_arr), color='red', linestyle='solid', linewidth=0.5)
-            plt.savefig('./output_sep_rmse/'+filename[:-4]+'.png')
+            plt.savefig(output_dir + filename[:-4] + '.png')
             plt.close()
             cnt += 1
         else:
@@ -140,15 +162,12 @@ if __name__ == '__main__':
     
     # Hyper-parameters
     parser.add_argument('--num_classes', default=1, help='class number')
-    parser.add_argument('--input_size', default=1, help='input size')
-    parser.add_argument('--hidden_size', default=50, help='hidden size')
-    parser.add_argument('--num_layers', default=1, help='num layers')
 
     args = parser.parse_args()
 
     model_dir = args.model_dir
     output_dir = args.output_dir
 
-    os.makedirs(output_dir, exist_ok=True)
+    os.makedirs(output_dir, exist_ok=True) # output_dir 생성
 
     inference(model_dir, output_dir, args)
